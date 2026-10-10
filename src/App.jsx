@@ -1,13 +1,22 @@
-import { useState } from 'react'
+import ProductList from './components/ProductList.jsx'
 
 import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0)
+
 
   return (
     <>
-      <h1>hi</h1>
+      <div className="App">
+
+        <header>
+          <h1> 🛒 React Cart</h1>
+        </header>
+        <div className="container">
+          <ProductList />
+        </div>
+
+      </div>
     </>
   )
 }
