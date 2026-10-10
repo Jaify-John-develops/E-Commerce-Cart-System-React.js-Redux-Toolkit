@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { addToCart } from '../features/cart/CartSlice';
 
@@ -24,19 +24,37 @@ export default function ProductList() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <div className="loading">Loading products...</div>;
-  if (error) return <div role="alert">Could not load products: {error}</div>;
+  if (loading) return <section className="products-section" id="products"><div className="loading">Finding your favorites<span className="loading-dots">...</span></div></section>;
+  if (error) return <section className="products-section" id="products"><div className="error-message" role="alert">Could not load products: {error}</div></section>;
 
   return (
-    <div className="product-grid">
-      {products.map((product) => (
-        <div key={product.id} className="product-card">
-          <img src={product.image} alt={product.title} />
-          <h3>{product.title}</h3>
-          <p className="price">${product.price}</p>
-          <button onClick={() => dispatch(addToCart(product))}>Add to Cart 🛒</button>
+    <section className="products-section" id="products">
+      <div className="section-heading">
+        <div>
+          <p className="eyebrow">THE GOOD STUFF</p>
+          <h2>Shop our picks</h2>
         </div>
-      ))}
-    </div>
+        <span className="product-count">{products.length} lovely finds</span>
+      </div>
+      <div className="product-grid">
+        {products.map((product) => (
+          <article key={product.id} className="product-card">
+            <div className="product-image-wrap">
+              <img src={product.image} alt={product.title} />
+              <span className="product-tag">Picked for you</span>
+            </div>
+            <div className="product-info">
+              <h3 title={product.title}>{product.title}</h3>
+              <div className="product-buy-row">
+                <p className="price">${Number(product.price).toFixed(2)}</p>
+                <button aria-label={`Add ${product.title} to cart`} onClick={() => dispatch(addToCart(product))}>
+                  Add to cart <span aria-hidden="true">+</span>
+                </button>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
   );
 }
