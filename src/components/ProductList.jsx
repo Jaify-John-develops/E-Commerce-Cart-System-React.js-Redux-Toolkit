@@ -1,34 +1,42 @@
-import { useEffect } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import { fetchProducts } from '../features/product/ProductSlice'
+import React, { useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { addToCart } from '../features/cart/CartSlice';
 
-const ProductList = () => {
-  const dispatch = useDispatch()
-  const { items, status, error } = useSelector(state => state.Product)
-
+export default function ProductList() {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    if (status === 'idle') {
-      dispatch(fetchProducts())
-    }
-  }, [status, dispatch])
+    fetch('https://fakestoreapi.com/products?limit=3')
+      .then((res) => {
+        if (!res.ok) throw new Error(`Failed to fetch products (${res.status})`);
+        return res.json();
+      })
+      .then((data) => {
+        setProducts(data);
+      })
+      .catch((err) => {
+        console.error('Error fetching data:', err);
+        setError(err.message);
+      })
+      .finally(() => setLoading(false));
+  }, []);
 
-  if (status === 'loading') {
-    return <div className='loader'>Loading amazing products...</div>
-  }
-
-  if (status === 'failed') {
-    return <div className='error'>Error: {error}</div>
-  }
-  console.log("items", items)
-  console.log("status", status)
-  console.log("error", error)
+  if (loading) return <div className="loading">Loading products...</div>;
+  if (error) return <div role="alert">Could not load products: {error}</div>;
 
   return (
-    <div>
-      Product List
+    <div className="product-grid">
+      {products.map((product) => (
+        <div key={product.id} className="product-card">
+          <img src={product.image} alt={product.title} />
+          <h3>{product.title}</h3>
+          <p className="price">${product.price}</p>
+          <button onClick={() => dispatch(addToCart(product))}>Add to Cart 🛒</button>
+        </div>
+      ))}
     </div>
-  )
+  );
 }
-
-export default ProductList

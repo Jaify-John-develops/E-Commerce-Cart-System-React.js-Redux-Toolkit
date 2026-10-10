@@ -1,24 +1,17 @@
-import ProductList from './components/ProductList.jsx'
+import React from 'react';
+import ProductList from './components/ProductList';
+import Cart from './components/Cart.jsx';
 
-import './App.css'
-
-function App() {
-
-
+export default function App() {
   return (
-    <>
-      <div className="App">
-
-        <header>
-          <h1> 🛒 React Cart</h1>
-        </header>
-        <div className="container">
-          <ProductList />
-        </div>
-
-      </div>
-    </>
-  )
+    <div className="app-container">
+      <header className="navbar">
+        <h1>My E-Commerce App 🛍️</h1>
+      </header>
+      <main className="main-content">
+        <ProductList />
+        <Cart />
+      </main>
+    </div>
+  );
 }
-
-export default App

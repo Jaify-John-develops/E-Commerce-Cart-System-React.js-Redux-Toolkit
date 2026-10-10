@@ -1,43 +1,50 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
+import { createSlice } from '@reduxjs/toolkit';
 
+// Load cart items from localStorage on initial load
+const loadCartFromStorage = () => {
+  try {
+    const savedCart = localStorage.getItem('cartItems');
+    return savedCart ? JSON.parse(savedCart) : [];
+  } catch (error) {
+    return [];
+  }
+};
 
+const initialState = {
+  items: loadCartFromStorage(),
+};
 
-export const fetchProducts = createAsyncThunk('Product/fetchProducts', async () => {
-    const response = await fetch('https://fakestoreapi.com/products?limit=3')
-    if (response.ok) throw new Error('Failed to fetch')
-    const data = await response.json()
-    return data
-},
-)
-
-
-
-const CartSlice = createSlice({
-    name: 'Cart',
-    initialState: {
-        items: [],
-        status: 'idle',
-        error: null,
-        reducer: {}, //no sync reducer needed
-        extraReducers: (builder) => {
-            builder
-                .addCase(fetchProducts.pending, (state) => {
-                    state.status = 'loading'
-                })
-
-                .addCase(fetchProducts.fulfilled, (state, action) => {
-                    state.status = 'succeeded'
-                    state.items = action.payload
-                })
-
-                .addCase(fetchProducts.rejected, (state, action) => {
-                    state.status = 'failed'
-                    state.error = action.error.message
-                })
-        },
-
+const cartSlice = createSlice({
+  name: 'cart',
+  initialState,
+  reducers: {
+    addToCart: (state, action) => {
+      const existingItem = state.items.find(item => item.id === action.payload.id);
+      if (existingItem) {
+        existingItem.quantity += 1;
+      } else {
+        state.items.push({ ...action.payload, quantity: 1 });
+      }
+      localStorage.setItem('cartItems', JSON.stringify(state.items));
     },
-})
+    removeFromCart: (state, action) => {
+      state.items = state.items.filter(item => item.id !== action.payload);
+      localStorage.setItem('cartItems', JSON.stringify(state.items));
+    },
+    updateQuantity: (state, action) => {
+      const { id, quantity } = action.payload;
+      const item = state.items.find(item => item.id === id);
+      if (item && quantity > 0) {
+        item.quantity = quantity;
+      }
+      localStorage.setItem('cartItems', JSON.stringify(state.items));
+    },
+    clearCart: (state) => {
+      state.items = [];
+      localStorage.removeItem('cartItems');
+    }
+  },
+});
 
-
-export default CartSlice.reducer
+export const { addToCart, removeFromCart, updateQuantity, clearCart } = cartSlice.actions;
+export default cartSlice.reducer;
